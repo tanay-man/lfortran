@@ -563,11 +563,12 @@ namespace LCompilers {
         }
 
         llvm::Value* SimpleCMODescriptor::get_offset(llvm::Value* arr, bool load) {
-            llvm::Value* offset = llvm_utils->create_gep(arr, 1);
+            llvm::Value* offset = llvm_utils->create_gep2(dim_des, arr, 1);
             if( !load ) {
                 return offset;
             }
-            return llvm_utils->CreateLoad(offset);
+            llvm::Type *i32 = llvm::Type::getInt32Ty(context);    
+            return llvm_utils->CreateLoad2(i32, offset);
         }
 
         llvm::Value* SimpleCMODescriptor::get_lower_bound(llvm::Value* dims, bool load) {

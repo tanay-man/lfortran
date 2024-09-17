@@ -4984,7 +4984,7 @@ public:
             int n_dims = ASRUtils::extract_n_dims_from_ttype(expr_type(x.m_value));
             if (n_dims == 0) {
                 if (lhs_is_string_arrayref && value->getType()->isPointerTy()) {
-                    value = llvm_utils->CreateLoad(value);
+                    value = llvm_utils->CreateLoad2(value_type ,value);
                 }
                 if ( (ASR::is_a<ASR::FunctionCall_t>(*x.m_value) ||
                      ASR::is_a<ASR::StringConcat_t>(*x.m_value) ||
@@ -5203,10 +5203,11 @@ public:
         if( m_new == ASR::array_physical_typeType::PointerToDataArray &&
             m_old == ASR::array_physical_typeType::DescriptorArray ) {
             if( ASR::is_a<ASR::StructInstanceMember_t>(*m_arg) ) {
-                arg = llvm_utils->CreateLoad(arg);
+                arg = llvm_utils->CreateLoad2(m_type,arg);
             }
-            tmp = llvm_utils->CreateLoad(arr_descr->get_pointer_to_data(arg));
-            tmp = llvm_utils->create_ptr_gep(tmp, arr_descr->get_offset(arg));
+            tmp = llvm_utils->CreateLoad2(m_type, arr_descr->get_pointer_to_data(arg));
+            tmp = llvm_utils->create_ptr_gep2(llvm_utils->get_type_from_ttype_t_util(
+                    m_type,module.get()), tmp, arr_descr->get_offset(arg));
         } else if(
             m_new == ASR::array_physical_typeType::PointerToDataArray &&
             m_old == ASR::array_physical_typeType::FixedSizeArray) {
@@ -6144,7 +6145,8 @@ public:
             idx = builder->CreateSub(builder->CreateSExtOrTrunc(idx, llvm::Type::getInt32Ty(context)),
                 llvm::ConstantInt::get(context, llvm::APInt(32, 1)));
             std::vector<llvm::Value*> idx_vec = {idx};
-            tmp = llvm_utils->CreateGEP(str, idx_vec);
+            llvm::Type* type = llvm_utils->get_type_from_ttype_t_util(x.m_type, module.get()); 
+            tmp = llvm_utils->CreateGEP2(type,str, idx_vec);
         } else {
             tmp = lfortran_str_item(str, idx);
             strings_to_be_deallocated.push_back(al, tmp);
