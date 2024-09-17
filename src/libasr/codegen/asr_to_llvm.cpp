@@ -2317,7 +2317,7 @@ public:
             if ( LLVM::is_llvm_pointer(*x_mv_type) ||
                ((is_bindc_array && !ASRUtils::is_fixed_size_array(m_dims, n_dims)) &&
                 ASR::is_a<ASR::StructInstanceMember_t>(*x.m_v)) ) {
-                array = llvm_utils->CreateLoad(array);
+                array = llvm_utils->CreateLoad2(array->getType(), array);
             }
 
             Vec<llvm::Value*> llvm_diminfo;
